@@ -17,6 +17,11 @@ LABELS = {
     "UNRESOLVED_ISSUES": "存在待处理差异",
     "SAMPLE_UNKNOWN": "样例不存在",
     "STAGE_UNKNOWN": "处理阶段不存在",
+    "RETENTION_FIELDS": "保留期限需为 1 至 36500 天的整数",
+    "DISPOSAL_NOT_FOUND": "该批次尚无处置结果",
+    "DISPUTE_FIELDS": "请填写 3 至 200 字争议说明",
+    "DISPUTE_DUPLICATE": "该批次已有未结争议",
+    "DISPUTE_NOT_FOUND": "未结争议不存在",
 }
 
 
@@ -24,10 +29,21 @@ def response(error):
     code = error.code
     status = (
         404
-        if code in {"RUN_NOT_FOUND", "SAMPLE_UNKNOWN", "STAGE_UNKNOWN"}
+        if code in {
+            "RUN_NOT_FOUND",
+            "SAMPLE_UNKNOWN",
+            "STAGE_UNKNOWN",
+            "DISPOSAL_NOT_FOUND",
+            "DISPUTE_NOT_FOUND",
+        }
         else (
             409
-            if code in {"STALE_REVIEW", "RUN_FINALIZED", "UNRESOLVED_ISSUES"}
+            if code in {
+                "STALE_REVIEW",
+                "RUN_FINALIZED",
+                "UNRESOLVED_ISSUES",
+                "DISPUTE_DUPLICATE",
+            }
             else 413 if code == "FILE_TOO_LARGE" else 422
         )
     )

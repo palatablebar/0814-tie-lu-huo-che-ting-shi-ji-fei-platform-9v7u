@@ -18,4 +18,8 @@ docker compose up --build -d --wait
 docker compose exec -T app pytest -q
 ```
 
+## 月末交接处置
+
+已签发批次在月末按"签发状态 + 未结争议 + 保留期限"逐批处置：未签发、争议未结或保留期未满的原凭据完整保留（`RETAINED`）；保留期满且无争议时清空敏感自由文本（凭据说明列与复核意见，覆盖为 `null`，不留原文或哈希），记录键、金额与业务分组保持可核对（`PURGED`）。处置按依据幂等，重试不新增记录；写入失败整事务回滚并保留旧版本；页面与下载读取同一份处置结果。
+
 [输入字段](docs/DATA-DICTIONARY.md) · [阶段接口](docs/HTTP.md) · [操作步骤](docs/OPERATIONS.md) · [规则与测试](docs/DEPTH.md)

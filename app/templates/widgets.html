@@ -42,6 +42,23 @@
   </form>
 </aside>
 {% endmacro %}
+{% macro retention() %}
+<section class="panel retention" aria-labelledby="retention-title">
+  <h2 id="retention-title">月末交接处置</h2>
+  <form id="disposal-form" hidden>
+    <p id="disposal-run"></p>
+    <label>保留期限（天）<input id="retention-days" name="retention_days" type="number" min="1" max="36500" placeholder="默认 1825"></label>
+    <div class="review-actions"><button type="submit" class="action">执行处置</button></div>
+  </form>
+  <form id="dispute-form" hidden>
+    <label for="dispute-note">争议说明</label>
+    <textarea id="dispute-note" minlength="3" maxlength="200" placeholder="未结争议期间原凭据完整保留"></textarea>
+    <div class="review-actions"><button type="submit">登记争议</button></div>
+  </form>
+  <a id="disposal-download" hidden>下载处置结果</a>
+  <div id="disposal-result" hidden></div>
+</section>
+{% endmacro %}
 {% macro status() %}
 <footer class="statusbar"><span id="notice" role="status" aria-live="polite">正在读取样例</span><a href="/examples/clean">下载样例 CSV</a></footer>
 {% endmacro %}

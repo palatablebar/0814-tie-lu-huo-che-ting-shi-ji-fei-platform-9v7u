@@ -1,6 +1,7 @@
 import {request} from './client.js';
 import {snapshot, history} from './view.js';
 import {visualize} from './plots.js';
+import {bindRetention, activateRetention} from './retention.js';
 
 const form = document.querySelector('#source');
 const file = document.querySelector('#file');
@@ -37,6 +38,7 @@ function draw() {
     detail.querySelector('[value="HELD"]').disabled = batch.status==='APPROVED';
     evidence.href = `/api/runs/${batch.id}/evidence`;
   }
+  activateRetention(batch);
 }
 
 function show(payload, committed = false) {
@@ -103,4 +105,5 @@ detail.addEventListener('submit',event=>{
     show(result,true); announce(result.status==='APPROVED'?'批次已签发':'批次已暂缓'); await refresh();
   });
 });
+bindRetention(announce, perform);
 preview(stage);

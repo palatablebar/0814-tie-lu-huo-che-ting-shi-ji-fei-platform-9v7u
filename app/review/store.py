@@ -8,7 +8,8 @@ from app.business import DomainIssue
 SCHEMA = """CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY, report TEXT NOT NULL, created TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'PENDING', revision INTEGER NOT NULL DEFAULT 0,
-    note TEXT NOT NULL DEFAULT '', reviewed TEXT
+    note TEXT NOT NULL DEFAULT '', reviewed TEXT,
+    voucher TEXT NOT NULL DEFAULT '[]'
 );"""
 
 
@@ -22,16 +23,25 @@ class Store:
         with closing(sqlite3.connect(self.path, timeout=15)) as db, db:
             db.row_factory = sqlite3.Row
             db.execute(SCHEMA)
+            self._migrate(db)
             yield db
 
-    def register(self, run_id, report):
+    def _migrate(self, db):
+        columns = {row["name"] for row in db.execute("PRAGMA table_info(runs)")}
+        if "voucher" not in columns:
+            db.execute("ALTER TABLE runs ADD COLUMN voucher TEXT NOT NULL DEFAULT '[]'")
+
+    def register(self, run_id, report, voucher=None):
+        voucher = voucher or []
         with self.connect() as db:
             db.execute(
-                "INSERT INTO runs(id,report,created) VALUES (?,?,?) ON CONFLICT(id) DO NOTHING",
+                "INSERT INTO runs(id,report,created,voucher) VALUES (?,?,?,?)"
+                " ON CONFLICT(id) DO NOTHING",
                 (
                     run_id,
                     json.dumps(report, ensure_ascii=False),
                     report["manifest"]["created"],
+                    json.dumps(voucher, ensure_ascii=False),
                 ),
             )
         return self.load(run_id)
@@ -43,6 +53,7 @@ class Store:
             raise DomainIssue("RUN_NOT_FOUND")
         result = dict(row)
         result["report"] = json.loads(result["report"])
+        result["voucher"] = json.loads(result["voucher"])
         return result
 
     def list(self):

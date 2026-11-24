@@ -6,6 +6,7 @@ import pytest
 
 from app.intake.schema import HEADER
 from app.main import create_app
+from app.retention.store import DisposalStore
 from app.review.store import Store
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,3 +36,8 @@ def client(tmp_path):
 @pytest.fixture
 def store(tmp_path):
     return Store(tmp_path / "runs.db")
+
+
+@pytest.fixture
+def disposal(tmp_path):
+    return DisposalStore(tmp_path / "runs.db")

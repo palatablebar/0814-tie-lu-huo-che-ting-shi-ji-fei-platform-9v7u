@@ -4,11 +4,17 @@ from time import monotonic
 
 from app.business import DomainIssue
 from app.config import RULE_VERSION
+from app.intake.service import inspect
 from app.modules.pipeline import run
 
 
 def now():
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+
+def build_voucher(data):
+    """采信行的结构化原凭据：记录键、分组、类型、分钟段、金额与说明列。"""
+    return [dict(row) for row in inspect(data)["rows"]]
 
 
 def execute(store, data):
@@ -29,7 +35,7 @@ def execute(store, data):
         bytes=len(data),
         run_id=run_id,
     )
-    return store.register(run_id, report)
+    return store.register(run_id, report, build_voucher(data))
 
 
 def review(store, run_id, values):

@@ -13,6 +13,8 @@
 | M5 运行对账 | 对照输入、采信和隔离行 | `POST /api/stages/balance` | `app/modules/reconcile.py` | `tests/test_reconcile.py` |
 | M6 批次复核 | 执行批次并签发或暂缓 | `POST /api/runs、PATCH /api/runs/<id>` | `app/review/service.py` | `tests/test_review.py` |
 | M7 证据交付 | 下载复核清单 | `GET /api/runs/<id>/evidence` | `app/evidence/render.py` | `tests/test_evidence.py` |
+| M8 月末处置 | 按签发、争议与保留期处置凭据 | `POST /api/runs/<id>/disposal` | `app/retention/service.py` | `tests/test_retention.py`、`tests/test_retention_http.py` |
+| M9 争议登记 | 登记与关闭未结争议 | `POST /api/runs/<id>/disputes` | `app/retention/disputes.py` | `tests/test_retention.py`、`tests/test_retention_http.py` |
 
 ## 输入陷阱
 
@@ -35,3 +37,19 @@
 停时按左闭右开分钟段记录。先剪裁并合并暂停时段，再扣除免计分钟。前 60 分钟每分 1 分钱，后 60 分钟每分 3 分钱，余下每分 5 分钱。
 
 逐组预期结论见 `tests/test_policy.py`，计算过程证据见 `tests/test_calculate.py`。
+
+## 月末交接处置保证
+
+| 要求 | 实现位置 | 测试 |
+|---|---|---|
+| 未结争议原凭据完整保留 | `app/retention/policy.py`、`app/retention/disputes.py` | `test_open_dispute_keeps_original_voucher_intact` |
+| 保留期满且无争议才清空敏感值 | `app/retention/policy.py::decide` | `test_expired_without_dispute_purges_sensitive_values` |
+| 清空不可由处置结果还原（无原文无哈希） | `app/retention/redact.py` | `test_purged_result_cannot_reconstruct_sensitive_text` |
+| 记录键、金额、来源分组仍可核对 | `app/retention/service.py` 对账段 | `test_purge_keeps_keys_amounts_and_source_relations` |
+| 同任务重试不新增处置记录 | 依据哈希幂等，决策时刻不入键 | `test_retry_same_task_adds_no_disposal_record` |
+| 补录记录不被误删，只清说明列 | 脱敏仅覆盖 `note` 字段 | `test_purge_keeps_keys_amounts_and_source_relations` |
+| 交接失败保留旧版本与原凭据 | `DisposalStore.commit_disposal` 单事务 | `test_failed_handoff_keeps_previous_version` |
+| 页面与下载同一份结果 | `app/retention/render.py` 统一序列化 | `test_page_and_download_read_identical_disposal_bytes` |
+| 并行处置只落一条记录 | 主键 UPSERT + 依据哈希短路 | `test_parallel_disposal_commits_single_record` |
+
+敏感值仅指自由文本：来源凭据每行说明列 `note` 与批次复核意见；分钟段、金额、记录键、业务分组等结构化核对字段不属于敏感值，处置中一律保留。处置历史写入只追加的 `disposal_ledger` 版本台账，当前结果存于 `disposals`，二者在同一事务内更新。

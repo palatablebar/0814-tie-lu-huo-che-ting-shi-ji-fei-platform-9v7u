@@ -6,7 +6,7 @@
   color-scheme:dark; }
 * {box-sizing:border-box} [hidden] {display:none!important}
 body.dispatch {margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1.55 var(--font-ui)}
-.dispatch .desk {display:grid;grid-template-areas:"mast mast mast" "stages stages source" "kpis kpis kpis" "chart chart chart" "results results inspection" "archive archive archive" "statusbar statusbar statusbar";grid-template-columns:1fr .8fr .85fr;gap:var(--gap);margin:auto;padding:clamp(14px,3vw,42px);max-width:1634px}
+.dispatch .desk {display:grid;grid-template-areas:"mast mast mast" "stages stages source" "kpis kpis kpis" "chart chart chart" "results results inspection" "archive archive retention" "statusbar statusbar statusbar";grid-template-columns:1fr .8fr .85fr;gap:var(--gap);margin:auto;padding:clamp(14px,3vw,42px);max-width:1634px}
 .dispatch .mast {grid-area:mast;background:var(--surface);padding:var(--pad);min-width:0}
 .dispatch .mast h1 {font:700 clamp(26px,4vw,52px)/1.1 var(--font-display);margin:0;overflow-wrap:anywhere}
 .dispatch .role {color:var(--accent);margin:0 0 7px;font-weight:700}
@@ -24,7 +24,14 @@ body.dispatch {margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1
 .dispatch .metric {background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:var(--pad);display:grid;align-content:center}
 .dispatch .metric strong {font:600 clamp(22px,4vw,43px)/1.05 var(--font-num);font-variant-numeric:tabular-nums}
 .dispatch .panel {background:var(--surface);padding:var(--pad);min-width:0;border:1px solid var(--line);border-radius:var(--radius)}
-.dispatch .results {grid-area:results} .dispatch .chart {grid-area:chart} .dispatch .inspection {grid-area:inspection} .dispatch .archive {grid-area:archive}
+.dispatch .results {grid-area:results} .dispatch .chart {grid-area:chart} .dispatch .inspection {grid-area:inspection}
+.dispatch .retention {grid-area:retention}
+.dispatch .retention label {display:block;margin:8px 0}
+.dispatch .retention input {width:100%;padding:.43em .75em;margin-top:4px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);color:inherit;font-variant-numeric:tabular-nums}
+.dispatch #disposal-result {margin-top:10px;max-height:260px;overflow:auto;font: .91em/1.5 var(--font-num);white-space:pre-wrap;overflow-wrap:anywhere}
+.dispatch #disposal-result .verdict {font-weight:800}
+.dispatch #disposal-result .verdict[data-disposition="PURGED"] {color:var(--accent)}
+.dispatch #disposal-result .verdict[data-disposition="RETAINED"] {color:var(--alert)} .dispatch .archive {grid-area:archive}
 .dispatch h2 {font-size:16px;margin:0 0 10px} .dispatch .panel-head {display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
 .dispatch #counts,.dispatch #run-status {color:var(--sub);overflow-wrap:anywhere}
 .dispatch .scroll {overflow:auto;max-height:330px}
@@ -41,9 +48,9 @@ body.dispatch {margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1
 .dispatch .mast h1 {letter-spacing:.035em}
 .dispatch .results tbody tr:nth-child(odd){background:var(--bg)}
 .dispatch .chart #visual {padding-block:5px}
-@media(max-width:1120px) { .dispatch .desk {grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"mast mast" "source source" "stages stages" "kpis kpis" "results results" "chart inspection" "archive archive" "statusbar statusbar"} }
-@media(max-width:630px) { .dispatch .desk {grid-template-columns:minmax(0,1fr);grid-template-areas:"mast" "source" "stages" "kpis" "chart" "results" "inspection" "archive" "statusbar"} .dispatch .kpis {grid-template-columns:repeat(2,minmax(0,1fr))} .dispatch .chart #visual {display:block!important} .dispatch .stages button {width:auto} }
-@media print { .dispatch .source,.dispatch .stages,.dispatch .archive,.dispatch .statusbar {display:none} .dispatch .desk {display:block} }
+@media(max-width:1120px) { .dispatch .desk {grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"mast mast" "source source" "stages stages" "kpis kpis" "results results" "chart inspection" "archive retention" "statusbar statusbar"} }
+@media(max-width:630px) { .dispatch .desk {grid-template-columns:minmax(0,1fr);grid-template-areas:"mast" "source" "stages" "kpis" "chart" "results" "inspection" "archive" "retention" "statusbar"} .dispatch .kpis {grid-template-columns:repeat(2,minmax(0,1fr))} .dispatch .chart #visual {display:block!important} .dispatch .stages button {width:auto} }
+@media print { .dispatch .source,.dispatch .stages,.dispatch .archive,.dispatch .retention .review-actions,.dispatch #dispute-form,.dispatch #disposal-form,.dispatch .statusbar {display:none} .dispatch .desk {display:block} }
 
 .mark-piece {background:var(--accent);color:var(--surface);min-width:0}
 
